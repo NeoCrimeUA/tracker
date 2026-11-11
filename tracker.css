@@ -1,0 +1,149 @@
+/* NeoCrime Tracker — стилі сторінки. Хедер, футер і кнопки (btn-hero) беруться з site.css (index.html).
+   Вигляд hero і карток — як на сторінці apply.html. */
+[hidden]{ display:none !important; }
+:root{ --ease: cubic-bezier(.22,1,.36,1); --discord: 235 86% 65%; }
+.account-dropdown-bw .discord-icon{ vertical-align:-2px; }
+
+/* ===== HERO ФОТО (як apply.html) ===== */
+.hero-photo-wrap{ position:relative; width:100%; height:620px; overflow:hidden; background-color:#1a1b1b; }
+@media (max-width:768px){ .hero-photo-wrap{ height:60vh; min-height:340px; max-height:460px; } }
+@media (max-width:420px){ .hero-photo-wrap{ height:50vh; min-height:300px; } }
+.hero-photo-wrap::after{
+  content:""; position:absolute; inset:0; z-index:20; pointer-events:none;
+  background:linear-gradient(180deg, rgba(26,27,27,.1) 0%, rgba(26,27,27,.4) 60%, rgba(26,27,27,1) 100%);
+}
+.hero-photo-wrap img{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; }
+.hero-photo-wrap .hero-content{
+  position:absolute; inset:0; z-index:30; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; text-align:center; padding:0 1rem;
+}
+.hero-photo-wrap .hero-content h1{
+  display:block; white-space:normal; gap:0;
+  font-family:'Orbitron','Montserrat',sans-serif; font-weight:800; letter-spacing:.01em;
+  font-size:clamp(1.8rem, 8vw, 4rem); line-height:1.1;
+  background:linear-gradient(110deg,#fff 38%,#ffaaaa 50%,#fff 62%);
+  background-size:250% 100%;
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  animation:heroUp .9s var(--ease) .15s both, titleShine 18s ease-in-out 1.4s infinite;
+}
+.hero-photo-wrap .hero-content p{
+  margin-top:.5rem; font-size:1.15rem; color:#fff; font-weight:500; max-width:640px;
+  animation:heroUp .9s var(--ease) .35s both;
+}
+@media (min-width:768px){ .hero-photo-wrap .hero-content p{ font-size:1.5rem; } }
+@media (max-width:480px){ .hero-photo-wrap .hero-content p{ font-size:.98rem; margin-top:.4rem; } }
+@keyframes cardIn{ from{opacity:0; transform:translateY(46px) scale(.96);} to{opacity:1; transform:none;} }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* ===== СЕКЦІЯ ===== */
+.tracker-section{ width:100%; max-width:1552px; margin:0 auto; padding:5rem 1.25rem; text-align:left; }
+@media (max-width:640px){ .tracker-section{ padding:2.75rem 1rem; } }
+.tracker-grid{
+  display:grid; grid-template-columns:1fr minmax(340px,560px);
+  gap:clamp(28px,6vw,96px); align-items:start;
+}
+@media (max-width:900px){ .tracker-grid{ grid-template-columns:1fr; gap:0; } }
+.tracker-intro h2{
+  position:relative; display:inline-block; padding-bottom:.5rem;
+  font-size:2rem; font-weight:700; letter-spacing:-.01em; color:#fff;
+}
+@media (max-width:480px){ .tracker-intro h2{ font-size:1.5rem; } }
+.tracker-intro h2::after{
+  content:""; position:absolute; bottom:0; left:0; width:0; height:3px; border-radius:2px;
+  background:hsl(var(--primary)); transition:width .9s var(--ease) .35s;
+}
+.tracker-intro.revealed h2::after{ width:60%; }
+.tracker-intro p{ margin-top:1.25rem; color:#e5e5e5; font-size:1.1rem; max-width:560px; font-weight:400; }
+@media (max-width:480px){ .tracker-intro p{ font-size:.95rem; margin-top:.9rem; } }
+
+/* ===== КАРТКА ===== */
+.tracker-card{
+  position:relative; overflow:hidden; isolation:isolate;
+  margin-top:0; background-color:#262626; border:1px solid rgba(255,255,255,.12);
+  border-radius:16px; padding:2.5rem; box-shadow:0 20px 50px -20px rgba(0,0,0,.6);
+}
+@media (max-width:900px){ .tracker-card{ margin-top:2.5rem; } }
+@media (max-width:640px){ .tracker-card{ padding:1.5rem; border-radius:14px; margin-top:2rem; } }
+@media (max-width:420px){ .tracker-card{ padding:1.15rem 1rem; } }
+.tracker-card h3{ font-size:1.6rem; font-weight:700; color:#fff; margin-bottom:1.25rem; line-height:1.2; }
+@media (max-width:480px){ .tracker-card h3{ font-size:1.3rem; } }
+
+/* перемикач Увійти / Реєстрація */
+.modes{
+  display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:1.5rem; padding:4px;
+  background:#1a1b1b; border:1px solid rgba(255,255,255,.12); border-radius:12px;
+}
+.modes button{
+  padding:10px 6px; border:1px solid transparent; border-radius:9px; background:transparent;
+  color:#9c9c9c; font-weight:600; font-size:.9rem; letter-spacing:.3px;
+  transition:color .35s, background-color .35s, border-color .35s, translate .45s var(--ease);
+}
+@media (hover:hover){ .modes button:hover:enabled{ color:#e5e5e5; translate:0 -2px; } }
+.modes button[aria-pressed=true]{ color:#fff; background-color:#2f2f2f; border-color:rgba(255,255,255,.45); box-shadow:0 10px 24px -12px rgba(0,0,0,.7); }
+.modes button:disabled{ cursor:wait; opacity:.7; }
+.modes button:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+
+/* поля форми */
+.tracker-card form{ display:block; }
+.form-field{ margin-bottom:1.5rem; }
+@media (max-width:640px){ .form-field{ margin-bottom:1.15rem; } }
+.form-field label{
+  display:block; font-size:.85rem; font-weight:600; color:#bcbcbc; margin-bottom:.6rem;
+  text-transform:uppercase; letter-spacing:.04em; transition:color .3s;
+}
+.form-field:focus-within label{ color:#fff; }
+.form-field input{
+  width:100%; padding:.85rem 1.1rem; font-family:inherit; font-size:.95rem; color:#fff;
+  background-color:rgba(26,27,27,.9); border:1px solid rgba(255,255,255,.14); border-radius:10px;
+  transition:border-color .3s, box-shadow .4s var(--ease), background-color .3s, translate .4s var(--ease);
+}
+@media (max-width:640px){ .form-field input{ font-size:16px; padding:.8rem 1rem; } }
+.form-field input::placeholder{ color:#6e6e6e; }
+.form-field input:hover{ border-color:rgba(255,255,255,.25); }
+.form-field input:focus{
+  outline:none; background-color:#1d1e1e; border-color:rgba(255,255,255,.5);
+  box-shadow:0 0 0 4px rgba(255,255,255,.07), 0 10px 30px -12px rgba(0,0,0,.7); translate:0 -2px;
+}
+.form-field .hint{ display:block; margin-top:.45rem; font-size:.78rem; color:#6e6e6e; transition:color .3s; }
+.form-field:focus-within .hint{ color:#9c9c9c; }
+
+.notice{
+  margin:0 0 1.25rem; padding:.9rem 1.2rem; border-radius:10px; font-size:.9rem; font-weight:500;
+  color:#e5e5e5; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15);
+  border-left:3px solid hsl(var(--primary)); overflow-wrap:anywhere;
+  animation:cardIn .6s var(--ease) both;
+}
+.muted{ margin:0 0 1.25rem; color:#bcbcbc; font-size:.98rem; line-height:1.6; overflow-wrap:anywhere; }
+
+/* Discord підтверджено */
+.verified{
+  display:flex; align-items:center; gap:.9rem; margin:0 0 1.5rem; padding:1rem 1.25rem;
+  background:rgba(88,101,242,.08); border:1px solid rgba(88,101,242,.28); border-radius:14px;
+  overflow-wrap:anywhere;
+}
+.verified span{
+  display:block; font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:#4ade80;
+}
+.verified strong{ display:block; font-size:1.05rem; font-weight:700; color:#fff; }
+
+/* Профіль */
+.nickname{ margin:0 0 .15rem; font-size:1.45rem; font-weight:800; overflow-wrap:anywhere; }
+.account-state{
+  margin:0 0 1.25rem; padding:.9rem 1.2rem; border-radius:10px; font-size:.95rem; font-weight:600;
+  color:#e5e5e5; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15);
+}
+.account-state[data-state=active]{ background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.3); color:#4ade80; }
+.account-state[data-state=pending]{ background:rgba(224,167,42,.1); border-color:rgba(224,167,42,.3); color:#fbbf24; }
+.account-state[data-state=rejected],.account-state[data-state=banned],.account-state[data-state=deleted]{
+  background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.3); color:#f87171;
+}
+.profile-actions,.form-actions{ display:flex; flex-wrap:wrap; gap:.75rem; }
+.form-actions{ margin-top:1.75rem; }
+
+/* кнопки — система btn-hero із site.css; тут лише розміри у картці */
+.tracker-card .btn-hero{ width:100%; }
+@media (min-width:640px){ .profile-actions .btn-hero{ width:auto; flex:1 1 180px; } }
+.btn-hero:disabled{ opacity:.58; cursor:wait; animation:none; transform:none; }
+.btn-hero:disabled::after{ display:none; }
+noscript{ display:block; margin-top:1rem; color:#bcbcbc; font-size:.9rem; }
