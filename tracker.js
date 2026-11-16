@@ -1,8 +1,13 @@
 "use strict";
 
-const API = "https://api.neocrime.space/tracker/auth";
+const API = "https://api.neocrime-group.com/tracker/auth";
 const copy = {
   uk: {
+    manualDiscord: "Відкрити Discord вручну", confirmPassword: "Повтори пароль", passwordMismatch: "Паролі не збігаються.",
+    installTitle: "NeoCrime Tracker для Windows", download: "Завантажити установник",
+    installPending: "Можеш встановити трекер зараз. Увійти в застосунок можна після схвалення заявки.",
+    installActive: "Встанови трекер та увійди з логіном і паролем свого акаунта.",
+    registeredActive: "Реєстрацію завершено. Твій акаунт активний.",
     headline: "Твоя дорога. Твій внесок.",
     lead: "Створи акаунт NeoCrime Tracker для рейсів у ETS2 та ATS. Якщо акаунт уже є, увійди й перевір його статус.",
     home: "← На головну", login: "Увійти", register: "Реєстрація", loginTitle: "Вхід до акаунта",
@@ -14,9 +19,9 @@ const copy = {
     logout: "Вийти", privacy: "Конфіденційність", terms: "Умови",
     pending: "Заявка на розгляді", active: "Акаунт активний", rejected: "Заявку відхилено",
     banned: "Акаунт заблоковано", deleted: "Акаунт видалено", unknown: "Невідомий статус",
-    waiting: "Підтвердь Discord у відкритому вікні.", popup: "Дозволь спливні вікна для цієї сторінки й повтори спробу.",
+    waiting: "Підтвердь Discord у відкритому вікні.", popup: "Браузер заблокував вікно. Скористайся кнопкою «Відкрити Discord вручну».",
     submitted: "Заявку подано. Щойно адміністрація її розгляне, бот повідомить тебе в Discord.",
-    network: "Сервер трекера недоступний. Спробуй ще раз.", FLOW_EXPIRED: "Час підтвердження сплив. Почни ще раз.",
+    network: "Не вдалося підключитися. Спробуй ще раз.", FLOW_EXPIRED: "Час підтвердження сплив. Почни ще раз.",
     verificationFailed: "Не вдалося підтвердити Discord. Почни ще раз.",
     DISCORD_ALREADY_LINKED: "Цей Discord уже прив’язано. Увійди у свій акаунт.",
     INVALID_CREDENTIALS: "Неправильний логін або пароль.", LOGIN_TAKEN: "Цей логін уже зайнято.",
@@ -26,6 +31,11 @@ const copy = {
     SESSION_EXPIRED: "Сесія завершилася. Увійди знову.", OAUTH_NOT_CONFIGURED: "Вхід через Discord ще не налаштовано."
   },
   en: {
+    manualDiscord: "Open Discord manually", confirmPassword: "Confirm password", passwordMismatch: "The passwords do not match.",
+    installTitle: "NeoCrime Tracker for Windows", download: "Download the installer",
+    installPending: "You can install the tracker now. You can sign in to the app after your application is approved.",
+    installActive: "Install the tracker and sign in with your account credentials.",
+    registeredActive: "Registration complete. Your account is active.",
     headline: "Your road. Your contribution.",
     lead: "Create a NeoCrime Tracker account for ETS2 and ATS. Already have an account? Sign in to check its status.",
     home: "← Back to the website", login: "Sign in", register: "Register", loginTitle: "Sign in to your account",
@@ -37,7 +47,7 @@ const copy = {
     logout: "Sign out", privacy: "Privacy", terms: "Terms",
     pending: "Application under review", active: "Account active", rejected: "Application declined",
     banned: "Account suspended", deleted: "Account deleted", unknown: "Unknown status",
-    waiting: "Complete Discord verification in the open window.", popup: "Allow pop-ups for this page, then try again.",
+    waiting: "Complete Discord verification in the open window.", popup: "Your browser blocked the pop-up. Use the Open Discord manually button.",
     submitted: "Application submitted. The bot will notify you in Discord after the team reviews it.",
     network: "Could not reach the tracker server. Try again.", FLOW_EXPIRED: "Verification expired. Please start again.",
     verificationFailed: "Discord verification failed. Please start again.",
@@ -52,13 +62,17 @@ const copy = {
 
 const el = id => document.getElementById(id);
 const language = document.documentElement.lang === "en" ? "en" : "uk";
-let mode = new URLSearchParams(location.search).get("mode") === "register" ? "register" : "login";
+let mode = new URLSearchParams(location.search).get("mode") === "login" ? "login" : "register";
 let token = "", account = null, flow = null, identity = null, popup = null;
+let authorizationUrl = "";
 let verification = 0, verifying = false, busy = false, notice = "";
 const t = key => Object.hasOwn(copy[language], key) ? copy[language][key] : copy[language].network;
 
 function render() {
-  document.querySelectorAll("[data-i18n]").forEach(node => { node.textContent = t(node.dataset.i18n); });
+  document.querySelectorAll("[data-mode]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
+    button.disabled = busy;
+  });
   el("modes").hidden = Boolean(account);
   el("login").hidden = Boolean(account) || mode !== "login";
   el("register").hidden = Boolean(account) || mode !== "register";
@@ -66,10 +80,14 @@ function render() {
   el("account-title").textContent = t(account ? "profileTitle" : mode === "login" ? "loginTitle" : "registerTitle");
   el("notice").hidden = !notice;
   el("notice").textContent = notice ? t(notice) : "";
+  el("notice").dataset.kind = ["submitted", "registeredActive"].includes(notice) ? "success" : "";
   el("verify").hidden = Boolean(identity);
   el("application").hidden = !identity;
   el("cancel").hidden = !verifying;
   el("discord").disabled = verifying || busy;
+  el("manual-discord").hidden = !verifying || !authorizationUrl;
+  if (authorizationUrl) el("manual-discord").href = authorizationUrl;
+  else el("manual-discord").removeAttribute("href");
   el("discord-name").textContent = identity?.discord_username || identity?.discord_id || "";
   document.querySelectorAll("form button,#refresh,#logout").forEach(button => { button.disabled = busy; });
   if (account) {
@@ -81,6 +99,8 @@ function render() {
     el("account-state").textContent = t(state);
     el("reason").textContent = state !== "active" ? account.status_reason || "" : "";
     el("reason").hidden = !el("reason").textContent;
+    el("install-tracker").hidden = state !== "pending" && state !== "active";
+    el("install-detail").textContent = t(state === "active" ? "installActive" : "installPending");
   }
 }
 
@@ -92,8 +112,9 @@ async function api(path, method, data) {
     method, headers, body: data === undefined ? undefined : JSON.stringify(data),
     credentials: "omit", cache: "no-store", redirect: "error", signal: AbortSignal.timeout(15000)
   });
-  const reply = await response.json();
-  if (!response.ok || reply.status !== "success") throw new Error(reply.code || "network");
+  const reply = await response.json().catch(() => null);
+  if (!response.ok || reply?.status !== "success")
+    throw new Error(reply?.code || (response.status === 429 ? "RATE_LIMITED" : "network"));
   return reply;
 }
 
@@ -102,18 +123,22 @@ function stopVerification() {
   verifying = false;
   flow = null;
   identity = null;
-  if (popup && !popup.closed) popup.close();
+  authorizationUrl = "";
+  closePopup();
+}
+
+function closePopup() {
+  try { if (popup && !popup.closed) popup.close(); } catch { /* Browser separated the popup. */ }
   popup = null;
 }
 
 el("discord").addEventListener("click", async () => {
   stopVerification();
   popup = window.open("about:blank", "_blank", "popup,width=520,height=720");
-  if (!popup) { notice = "popup"; render(); return; }
-  popup.opener = null;
+  if (popup) popup.opener = null;
   const current = verification;
   verifying = true;
-  notice = "waiting";
+  notice = popup ? "waiting" : "popup";
   render();
   try {
     const result = await api("/discord/start", "POST", { language });
@@ -122,8 +147,10 @@ el("discord").addEventListener("click", async () => {
     if (url.origin !== "https://discord.com" || url.pathname !== "/oauth2/authorize")
       throw new Error("verificationFailed");
     flow = { flow_id: result.flow_id, poll_token: result.poll_token };
-    if (popup.closed) throw new Error("verificationFailed");
-    popup.location.replace(url.href);
+    authorizationUrl = url.href;
+    try { if (popup && !popup.closed) popup.location.replace(authorizationUrl); }
+    catch { closePopup(); notice = "popup"; }
+    render();
     const deadline = Number(result.expires_at) * 1000;
     while (current === verification && Date.now() < deadline) {
       await new Promise(resolve => setTimeout(resolve, 1800));
@@ -133,8 +160,8 @@ el("discord").addEventListener("click", async () => {
       if (status.flow_status === "ready" && status.identity) {
         identity = status.identity;
         verifying = false;
-        if (!popup.closed) popup.close();
-        popup = null;
+        closePopup();
+        authorizationUrl = "";
         notice = "";
         render();
         el("application").elements.login.focus();
@@ -153,7 +180,7 @@ el("discord").addEventListener("click", async () => {
 
 function resetDiscord() {
   stopVerification();
-  el("application").reset();
+  el("reg-password").value = el("reg-confirm").value = "";
   notice = "";
   render();
 }
@@ -180,14 +207,31 @@ for (const [formId, path] of [["login", "/login"], ["application", "/register"]]
     const registering = formId === "application";
     if (registering && (!identity || !flow)) return;
     const values = Object.fromEntries(new FormData(form));
+    values.login = values.login.trim().toLowerCase();
+    if (registering) {
+      const confirm = form.elements.confirm_password;
+      if (confirm.value !== values.password) {
+        confirm.setCustomValidity(t("passwordMismatch"));
+        confirm.reportValidity();
+        return;
+      }
+      values.nickname = values.nickname.trim();
+      delete values.confirm_password;
+    }
     void run(async () => {
       try {
         const result = await api(path, "POST", registering ? { ...values, ...flow } : values);
         token = result.session_token;
         account = result.user;
         stopVerification();
-        if (registering) notice = "submitted";
-      } finally { form.elements.password.value = ""; }
+        if (registering) notice = account.status === "active" ? "registeredActive" : "submitted";
+        form.reset();
+        el("account-title").tabIndex = -1;
+        el("account-title").focus();
+      } finally {
+        form.elements.password.value = "";
+        if (registering) form.elements.confirm_password.value = "";
+      }
     });
   });
 }
@@ -209,4 +253,7 @@ document.querySelectorAll("[data-mode]").forEach(button => button.addEventListen
   notice = "";
   render();
 }));
+el("reg-confirm").addEventListener("input", event => event.currentTarget.setCustomValidity(""));
+el("reg-password").addEventListener("input", () => el("reg-confirm").setCustomValidity(""));
+document.querySelectorAll("[data-i18n]").forEach(node => { node.textContent = t(node.dataset.i18n); });
 render();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://flagcdn.com; connect-src https://api.neocrime.space; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://flagcdn.com; connect-src https://api.neocrime-group.com; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="assets/logo.avif" type="image/avif">
 <link rel="apple-touch-icon" href="assets/logo.avif">
 <title>NeoCrime Tracker · Driver account</title>
@@ -79,25 +79,31 @@
   <div class="hero-content">
     <h1>NeoCrime Tracker</h1>
     <p>Your road. Your contribution.</p>
+    <a href="#account" class="btn-hero btn-hero-primary registration-cta">Create an account</a>
   </div>
 </div>
 
-<main class="tracker-section">
+<main class="tracker-section" id="account">
   <div class="tracker-grid">
-    <div class="tracker-intro reveal">
-      <h2>Driver account</h2>
-      <p>Create a NeoCrime Tracker account for ETS2 and ATS. Already have an account? Sign in to check its status.</p>
+    <div class="tracker-intro">
+      <h2>Driver registration</h2>
+      <p>One account for this website and NeoCrime Tracker on Windows.</p>
+      <ol class="registration-steps">
+        <li><strong>Verify Discord</strong><span>Use the Discord account you use on the NeoCrime server.</span></li>
+        <li><strong>Create an account</strong><span>Choose a username, nickname and password, then submit your application.</span></li>
+        <li><strong>Install the tracker</strong><span>The Windows installer will be available after you submit your application.</span></li>
+      </ol>
     </div>
 
-    <section class="tracker-card reveal" aria-labelledby="account-title">
+    <section class="tracker-card" aria-labelledby="account-title">
       <div class="modes" id="modes">
-        <button type="button" data-mode="login" aria-controls="login" aria-pressed="true"><span data-i18n="login">Sign in</span></button>
-        <button type="button" data-mode="register" aria-controls="register" aria-pressed="false"><span data-i18n="register">Register</span></button>
+        <button type="button" data-mode="login" aria-controls="login" aria-pressed="false"><span data-i18n="login">Sign in</span></button>
+        <button type="button" data-mode="register" aria-controls="register" aria-pressed="true"><span data-i18n="register">Register</span></button>
       </div>
-      <h3 id="account-title">Sign in to your account</h3>
+      <h3 id="account-title">Create your account</h3>
       <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
 
-      <form id="login">
+      <form id="login" hidden>
         <div class="form-field">
           <label for="login-username" data-i18n="username">Username</label>
           <input id="login-username" name="login" type="text" autocomplete="username" required maxlength="32">
@@ -109,10 +115,11 @@
         <button class="btn-hero btn-hero-primary" type="submit"><span data-i18n="login">Sign in</span></button>
       </form>
 
-      <section id="register" hidden>
+      <section id="register">
         <div id="verify">
           <p class="muted" data-i18n="discordHelp">Verify your Discord account to link it to NeoCrime Tracker.</p>
           <button class="btn-hero btn-hero-discord" id="discord" type="button"><span data-i18n="discord">Verify Discord</span></button>
+          <a class="btn-hero" id="manual-discord" target="_blank" rel="noopener noreferrer" hidden><span data-i18n="manualDiscord"></span></a>
           <button class="btn-hero" id="cancel" type="button" hidden><span data-i18n="cancel">Cancel</span></button>
         </div>
         <form id="application" hidden>
@@ -131,6 +138,10 @@
             <input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="password-hint">
             <small class="hint" id="password-hint" data-i18n="passwordHint">At least 8 characters.</small>
           </div>
+          <div class="form-field">
+            <label for="reg-confirm" data-i18n="confirmPassword"></label>
+            <input id="reg-confirm" name="confirm_password" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
+          </div>
           <button class="btn-hero btn-hero-primary" type="submit"><span data-i18n="submit">Submit application</span></button>
           <button class="btn-hero" id="reconnect" type="button"><span data-i18n="reconnect">Change Discord account</span></button>
         </form>
@@ -141,6 +152,11 @@
         <p id="handle" class="muted"></p>
         <p id="account-state" class="account-state"></p>
         <p id="reason" class="muted" hidden></p>
+        <section id="install-tracker" class="install-tracker" aria-labelledby="install-title" hidden>
+          <h4 id="install-title" data-i18n="installTitle"></h4>
+          <p id="install-detail"></p>
+          <a class="btn-hero btn-hero-primary" href="https://cdn.discordapp.com/attachments/1458759061414871092/1571498614566420520/NeoCrime-Tracker-Setup.exe" rel="noopener noreferrer" data-i18n="download"></a>
+        </section>
         <div class="profile-actions">
           <button class="btn-hero btn-hero-primary" id="refresh" type="button"><span data-i18n="refresh">Refresh status</span></button>
           <button class="btn-hero" id="logout" type="button"><span data-i18n="logout">Sign out</span></button>

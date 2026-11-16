@@ -147,3 +147,56 @@
 .btn-hero:disabled{ opacity:.58; cursor:wait; animation:none; transform:none; }
 .btn-hero:disabled::after{ display:none; }
 noscript{ display:block; margin-top:1rem; color:#bcbcbc; font-size:.9rem; }
+
+.hero-photo-wrap { height: clamp(300px, 45vw, 490px); }
+.registration-cta { margin-top: 1.35rem; }
+.tracker-section { padding-block: clamp(2rem, 5vw, 4rem); scroll-margin-top: 85px; }
+.tracker-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 560px); }
+.tracker-intro h2::after { width: 52px; }
+.registration-steps {
+  list-style: none;
+  padding: 0;
+  margin: 1.6rem 0 0;
+  counter-reset: registration-step;
+  display: grid;
+  gap: .8rem;
+  max-width: 560px;
+}
+.registration-steps li {
+  counter-increment: registration-step;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 2px 13px;
+  align-items: start;
+  padding: 13px 0;
+  border-bottom: 1px solid #ffffff20;
+}
+.registration-steps li::before {
+  content: counter(registration-step);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  height: 34px;
+  background: #42262a;
+  color: #ffc3cb;
+  font-weight: 700;
+  border-radius: 6px;
+}
+.registration-steps strong { color: #fff; }
+.registration-steps span { color: #c5c5ca; font-size: .91rem; }
+.form-field .hint { color: #b1b1b7; }
+#manual-discord, #cancel, #reconnect { margin-top: .65rem; }
+.install-tracker {
+  margin: 0 0 1.2rem;
+  padding: 1rem;
+  border: 1px solid #426253;
+  border-radius: 10px;
+  background: #202c26;
+}
+.install-tracker h4 { color: #f0fff6; font-size: 1rem; }
+.install-tracker p { margin: .45rem 0 1rem; color: #d3ded7; font-size: .9rem; }
+.notice[data-kind=success] { border-left-color: #77cd98; background: #26342b; color: #ddffe8; }
+@media (max-width:900px) {
+  .tracker-grid { grid-template-columns: minmax(0, 1fr); }
+  .tracker-card { grid-row: 1; margin: 0 0 2rem; }
+}
