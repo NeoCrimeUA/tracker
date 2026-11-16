@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://flagcdn.com; connect-src https://api.neocrime-group.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://flagcdn.com https://cdn.discordapp.com; connect-src https://api.neocrime-group.com; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="assets/logo.avif" type="image/avif">
 <link rel="apple-touch-icon" href="assets/logo.avif">
 <title>NeoCrime Tracker · Акаунт водія</title>
@@ -79,22 +79,11 @@
   <div class="hero-content">
     <h1>NeoCrime Tracker</h1>
     <p>Твоя дорога. Твій внесок.</p>
-    <a href="#account" class="btn-hero btn-hero-primary registration-cta">Створити акаунт</a>
   </div>
 </div>
 
 <main class="tracker-section" id="account">
   <div class="tracker-grid">
-    <div class="tracker-intro">
-      <h2>Реєстрація водія</h2>
-      <p>Один акаунт для сайту й NeoCrime Tracker у Windows.</p>
-      <ol class="registration-steps">
-        <li><strong>Підтвердь Discord</strong><span>Використай акаунт, з яким ти на сервері NeoCrime.</span></li>
-        <li><strong>Створи акаунт</strong><span>Вкажи логін, нікнейм і пароль та надішли заявку.</span></li>
-        <li><strong>Встанови трекер</strong><span>Після подання заявки з’явиться посилання на установник для Windows.</span></li>
-      </ol>
-    </div>
-
     <section class="tracker-card" aria-labelledby="account-title">
       <div class="modes" id="modes">
         <button type="button" data-mode="login" aria-controls="login" aria-pressed="false"><span data-i18n="login">Увійти</span></button>
@@ -148,8 +137,11 @@
       </section>
 
       <section id="profile" hidden>
-        <p id="nickname" class="nickname"></p>
-        <p id="handle" class="muted"></p>
+        <div class="cabinet-identity">
+          <img id="account-avatar" class="account-avatar" src="assets/logo.avif" width="64" height="64" alt="">
+          <div><p id="nickname" class="nickname"></p><p id="handle" class="muted"></p>
+          <p id="account-discord" class="muted"></p></div>
+        </div>
         <p id="account-state" class="account-state"></p>
         <p id="reason" class="muted" hidden></p>
         <section id="install-tracker" class="install-tracker" aria-labelledby="install-title" hidden>
@@ -160,6 +152,34 @@
         <div class="profile-actions">
           <button class="btn-hero btn-hero-primary" id="refresh" type="button"><span data-i18n="refresh">Оновити статус</span></button>
           <button class="btn-hero" id="logout" type="button"><span data-i18n="logout">Вийти</span></button>
+        </div>
+        <p id="cabinet-status" class="muted" role="status" hidden></p>
+        <div id="cabinet-data" hidden>
+          <dl id="cabinet-totals" class="cabinet-metrics"></dl>
+          <section id="cabinet-wallet" class="cabinet-panel" hidden>
+            <h4 data-i18n="wallet"></h4>
+            <dl id="wallet-totals" class="cabinet-metrics"></dl>
+            <progress id="level-progress" max="100" value="0" hidden></progress>
+          </section>
+          <section class="cabinet-panel">
+            <div class="chart-heading">
+              <div><h4 data-i18n="distance"></h4><p id="chart-summary" class="muted"></p></div>
+              <div class="chart-periods" aria-label="UTC">
+                <button type="button" data-period="day" data-i18n="day"></button>
+                <button type="button" data-period="week" data-i18n="week" aria-pressed="true"></button>
+                <button type="button" data-period="month" data-i18n="month"></button>
+                <button type="button" data-period="all" data-i18n="all"></button>
+              </div>
+            </div>
+            <svg id="mileage-chart" viewBox="0 0 700 185" role="img"></svg>
+          </section>
+          <section id="cabinet-records" class="cabinet-panel" hidden>
+            <h4 data-i18n="records"></h4>
+            <div class="metric-table-wrap">
+              <table><thead><tr><th scope="col" data-i18n="metric"></th><th scope="col" data-i18n="minimum"></th><th scope="col" data-i18n="average"></th><th scope="col" data-i18n="maximum"></th></tr></thead>
+              <tbody id="metric-rows"></tbody></table>
+            </div>
+          </section>
         </div>
       </section>
       <noscript>Для входу й реєстрації потрібен JavaScript. / Sign-in and registration require JavaScript.</noscript>

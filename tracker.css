@@ -200,3 +200,49 @@ noscript{ display:block; margin-top:1rem; color:#bcbcbc; font-size:.9rem; }
   .tracker-grid { grid-template-columns: minmax(0, 1fr); }
   .tracker-card { grid-row: 1; margin: 0 0 2rem; }
 }
+
+.tracker-grid { display: flex; justify-content: center; }
+.tracker-card { width: min(100%, 520px); min-width: 0; }
+.tracker-card.has-account { width: min(100%, 960px); }
+.cabinet-identity { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.cabinet-identity .muted { margin: 0; }
+.account-avatar {
+  display: block; flex: 0 0 64px; border: 1px solid #ffffff32;
+  border-radius: 50%; object-fit: cover; background: #151518;
+}
+.profile-actions { margin-bottom: 1.25rem; }
+.cabinet-metrics {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 9px; padding: 0; margin: 0;
+}
+.cabinet-metrics > div {
+  min-width: 0; padding: .8rem .9rem;
+  background: #1d1d21; border: 1px solid #ffffff16; border-radius: 8px;
+}
+.cabinet-metrics dt { color: #bfc0ca; font-size: .78rem; line-height: 1.35; }
+.cabinet-metrics dd { margin: .35rem 0 0; color: #f6f5f8; font-weight: 700; overflow-wrap: anywhere; }
+.cabinet-panel { margin-top: 1rem; padding: 1rem; background: #202024; border: 1px solid #ffffff20; border-radius: 9px; }
+.cabinet-panel h4 { margin: 0 0 .7rem; color: #f6f5f8; font-size: 1.04rem; }
+#level-progress { display: block; width: 100%; height: 9px; margin-top: .85rem; accent-color: #bd4c5c; }
+.chart-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: .6rem; }
+.chart-heading h4, .chart-heading .muted { margin-bottom: .25rem; }
+.chart-periods { display: flex; flex-wrap: wrap; gap: 4px; }
+.chart-periods button {
+  padding: .4rem .65rem; color: #e8e6ed; font: inherit; font-size: .8rem;
+  background: #151519; border: 1px solid #ffffff27; border-radius: 4px; cursor: pointer;
+}
+.chart-periods button[aria-pressed=true] { background: #a93649; color: white; }
+.chart-periods button:focus-visible { outline: 2px solid #f0a7b3; outline-offset: 2px; }
+#mileage-chart { display: block; width: 100%; margin-top: .5rem; }
+#mileage-chart rect { fill: #c65466; }
+#mileage-chart rect:hover { fill: #f08b9a; }
+#mileage-chart line { stroke: #53525e; }
+#mileage-chart text { fill: #d0cdd7; font-size: 14px; }
+.metric-table-wrap { overflow-x: auto; }
+.cabinet-panel table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.cabinet-panel th, .cabinet-panel td { padding: .55rem .45rem; border-bottom: 1px solid #ffffff15; text-align: left; font-size: .82rem; }
+.cabinet-panel thead th { color: #bebac7; font-weight: 600; }
+@media (max-width: 480px) {
+  .cabinet-panel { padding: .75rem; }
+  .cabinet-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
