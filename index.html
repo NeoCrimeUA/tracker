@@ -184,6 +184,20 @@
       </section>
       <noscript>Для входу й реєстрації потрібен JavaScript. / Sign-in and registration require JavaScript.</noscript>
     </section>
+    <aside id="recent-panel" class="cabinet-side cabinet-recent" aria-labelledby="recent-title" hidden>
+      <h3 id="recent-title" data-i18n="recentCompany"></h3>
+      <p id="recent-status" class="side-status" role="status" hidden></p>
+      <ul id="recent-list" class="side-list"></ul>
+    </aside>
+    <aside id="ranking-panel" class="cabinet-side cabinet-ranking" aria-labelledby="ranking-title" hidden>
+      <h3 id="ranking-title" data-i18n="companyRanking"></h3>
+      <div class="chart-periods ranking-periods">
+        <button type="button" data-ranking="monthly" data-i18n="month" aria-pressed="true"></button>
+        <button type="button" data-ranking="all_time" data-i18n="all" aria-pressed="false"></button>
+      </div>
+      <p id="ranking-status" class="side-status" role="status" hidden></p>
+      <ol id="ranking-list" class="side-list"></ol>
+    </aside>
   </div>
 </main>
 

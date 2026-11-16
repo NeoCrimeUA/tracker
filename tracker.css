@@ -242,6 +242,47 @@ noscript{ display:block; margin-top:1rem; color:#bcbcbc; font-size:.9rem; }
 .cabinet-panel table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .cabinet-panel th, .cabinet-panel td { padding: .55rem .45rem; border-bottom: 1px solid #ffffff15; text-align: left; font-size: .82rem; }
 .cabinet-panel thead th { color: #bebac7; font-weight: 600; }
+
+.tracker-grid.has-sidebars {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.has-sidebars .tracker-card.has-account {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+.cabinet-side {
+  min-width: 0;
+  padding: 1rem;
+  background: #222226;
+  border: 1px solid #ffffff22;
+  border-radius: 12px;
+}
+.cabinet-side h3 { margin: 0 0 .8rem; color: #f6f5f8; font-size: 1rem; font-weight: 700; }
+.side-list { list-style: none; display: grid; gap: 5px; margin: 0; padding: 0; }
+.side-list li { min-width: 0; padding: .65rem .55rem; border-bottom: 1px solid #ffffff13; overflow-wrap: anywhere; }
+.side-list li:last-child { border-bottom: 0; }
+.side-list strong { display: block; color: #f1eff4; font-size: .87rem; }
+.side-secondary, .side-status { color: #bdbac8; font-size: .76rem; }
+.side-trip-meta { display: flex; justify-content: space-between; gap: 6px; margin-bottom: .25rem; color: #d2cedb; font-size: .73rem; }
+.side-game { color: #f3a7b4; font-weight: 700; }
+.ranking-periods { margin-bottom: .55rem; }
+.cabinet-ranking .side-list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: .45rem; }
+.side-rank { color: #ed9aac; font-size: .76rem; font-weight: 700; }
+.is-own-rank { background: #39272f; border-radius: 5px; }
+@media (min-width: 1180px) {
+  .tracker-grid.has-sidebars { grid-template-columns: minmax(205px, .85fr) minmax(0, 2.55fr) minmax(235px, 1fr); }
+  .has-sidebars .tracker-card.has-account { grid-column: 2; grid-row: 1; }
+  .cabinet-recent { grid-column: 1; grid-row: 1; }
+  .cabinet-ranking { grid-column: 3; grid-row: 1; }
+}
+@media (max-width: 620px) {
+  .tracker-grid.has-sidebars { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 480px) {
   .cabinet-panel { padding: .75rem; }
   .cabinet-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }

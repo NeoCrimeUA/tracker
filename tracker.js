@@ -3,6 +3,9 @@
 const API = "https://api.neocrime-group.com";
 const copy = {
   uk: {
+    recentCompany: "Останні доставки", companyRanking: "Рейтинг водіїв",
+    noRecent: "Доставок поки немає.", noRanking: "За цей період даних поки немає.",
+    sideFailed: "Не вдалося завантажити дані.", invalidDelivery: "Недійсна",
     wallet: "Гаманець NeoCrime", distance: "Твій пробіг", records: "Показники рейсів",
     day: "День", week: "Тиждень", month: "Місяць", all: "Увесь час",
     metric: "Показник", minimum: "Мінімум", average: "Середнє", maximum: "Максимум",
@@ -40,6 +43,9 @@ const copy = {
     SESSION_EXPIRED: "Сесія завершилася. Увійди знову.", OAUTH_NOT_CONFIGURED: "Вхід через Discord ще не налаштовано."
   },
   en: {
+    recentCompany: "Latest deliveries", companyRanking: "Driver leaderboard",
+    noRecent: "No deliveries yet.", noRanking: "No results for this period.",
+    sideFailed: "Could not load data.", invalidDelivery: "Invalid",
     wallet: "NeoCrime Wallet", distance: "Your distance", records: "Delivery metrics",
     day: "Day", week: "Week", month: "Month", all: "All time",
     metric: "Metric", minimum: "Minimum", average: "Average", maximum: "Maximum",
@@ -85,6 +91,8 @@ let token = "", account = null, flow = null, identity = null, popup = null;
 let authorizationUrl = "";
 let verification = 0, verifying = false, busy = false, notice = "";
 let period = "week", profileRequest = 0, avatarUrl = "";
+let sideRequest = 0, rankings = null, rankingPeriod = "monthly";
+const sessionKey = "neocrime-tracker-web-session";
 const t = key => Object.hasOwn(copy[language], key) ? copy[language][key] : copy[language].network;
 
 function render() {
@@ -97,6 +105,9 @@ function render() {
   el("register").hidden = Boolean(account) || mode !== "register";
   el("profile").hidden = !account;
   el("account-title").closest(".tracker-card").classList.toggle("has-account", Boolean(account));
+  const activeAccount = account?.status === "active";
+  el("recent-panel").hidden = el("ranking-panel").hidden = !activeAccount;
+  el("account-title").closest(".tracker-grid").classList.toggle("has-sidebars", activeAccount);
   el("account-title").textContent = t(account ? "profileTitle" : mode === "login" ? "loginTitle" : "registerTitle");
   el("notice").hidden = !notice;
   el("notice").textContent = notice ? t(notice) : "";
@@ -271,8 +282,80 @@ function showProfile(data, range) {
 
 function clearProfile() {
   profileRequest++;
+  sideRequest++;
+  rankings = null;
+  el("recent-list").replaceChildren();
+  el("ranking-list").replaceChildren();
   el("cabinet-data").hidden = el("cabinet-status").hidden = true;
 }
+
+function sideStatus(id, key) {
+  const status = el(id);
+  status.textContent = key ? t(key) : "";
+  status.hidden = !key;
+}
+
+function sideText(tag, text, className) {
+  const item = document.createElement(tag);
+  item.textContent = text;
+  if (className) item.className = className;
+  return item;
+}
+
+function showRecent(deliveries) {
+  const rows = deliveries.slice(0, 6).map(({ nickname, trip = {} }) => {
+    const row = document.createElement("li");
+    const meta = document.createElement("div");
+    meta.className = "side-trip-meta";
+    const state = { invalid: "invalidDelivery", cancelled: "cancelled", review: "review" }[trip.ServerState];
+    const game = trip.Game === "ats" ? "ATS" : trip.Game === "eut2" ? "ETS2" : "";
+    const distance = Number.isFinite(trip.ObservedKm) ? metricValue(trip.ObservedKm, unit.km) : "";
+    meta.append(sideText("span", game, "side-game"), sideText("span", state ? t(state) : distance));
+    row.append(meta, sideText("strong", [trip.Source, trip.Destination].filter(Boolean).join(" → ") || nickname || "—"));
+    row.append(sideText("span", [nickname, trip.Cargo].filter(Boolean).join(" · "), "side-secondary"));
+    return row;
+  });
+  el("recent-list").replaceChildren(...rows);
+  sideStatus("recent-status", rows.length ? "" : "noRecent");
+}
+
+function showRanking() {
+  document.querySelectorAll("[data-ranking]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.ranking === rankingPeriod));
+  });
+  if (!rankings) return;
+  const rows = (rankings[rankingPeriod] || []).slice(0, 6).map((driver, index) => {
+    const row = document.createElement("li");
+    row.append(sideText("span", String(driver.rank || index + 1).padStart(2, "0"), "side-rank"),
+      sideText("strong", driver.nickname || driver.login || "—"),
+      sideText("span", metricValue(driver.kilometers, unit.km), "side-secondary"));
+    if (driver.user_id === account?.id) row.classList.add("is-own-rank");
+    return row;
+  });
+  el("ranking-list").replaceChildren(...rows);
+  sideStatus("ranking-status", rows.length ? "" : "noRanking");
+}
+
+function fetchSidebars() {
+  if (account?.status !== "active") return;
+  const current = ++sideRequest;
+  for (const [path, statusId, draw] of [
+    ["/activity", "recent-status", data => showRecent(data.deliveries || [])],
+    ["/leaderboards?metric=distance", "ranking-status", data => { rankings = data; showRanking(); }]
+  ]) {
+    sideStatus(statusId, "loadingProfile");
+    void api(path, "GET", undefined, "/tracker").then(reply => {
+      if (current === sideRequest) draw(reply.data);
+    }).catch(() => {
+      if (current === sideRequest) sideStatus(statusId, "sideFailed");
+    });
+  }
+}
+
+document.querySelectorAll("[data-ranking]").forEach(button => button.addEventListener("click", () => {
+  rankingPeriod = button.dataset.ranking;
+  showRanking();
+}));
 
 async function fetchProfile() {
   if (account?.status !== "active") return;
@@ -290,8 +373,16 @@ async function fetchProfile() {
   }
 }
 
+function setSession(value) {
+  token = value;
+  try {
+    if (value) sessionStorage.setItem(sessionKey, value);
+    else sessionStorage.removeItem(sessionKey);
+  } catch { /* The current page can still use the in-memory session. */ }
+}
+
 function enterCabinet(result) {
-  token = result.session_token;
+  setSession(result.session_token);
   account = result.user;
   stopVerification();
   render();
@@ -300,6 +391,7 @@ function enterCabinet(result) {
   el("account-title").focus({ preventScroll: true });
   el("account").scrollIntoView({ block: "start" });
   void fetchProfile();
+  fetchSidebars();
 }
 
 document.querySelectorAll("[data-period]").forEach(button => button.addEventListener("click", () => {
@@ -381,7 +473,7 @@ async function run(operation) {
   try { await operation(); }
   catch (error) {
     notice = error.message;
-    if (notice === "SESSION_EXPIRED") { token = ""; account = null; mode = "login"; }
+    if (notice === "SESSION_EXPIRED") { setSession(""); account = null; mode = "login"; }
     if (notice === "FLOW_EXPIRED" || notice === "DISCORD_REQUIRED") stopVerification();
   } finally { busy = false; render(); }
 }
@@ -423,11 +515,12 @@ for (const [formId, path] of [["login", "/login"], ["application", "/register"]]
 el("refresh").addEventListener("click", () => void run(async () => {
   account = (await api("/me", "GET")).user;
   render();
+  fetchSidebars();
   await fetchProfile();
 }));
 el("logout").addEventListener("click", () => void run(async () => {
   await api("/logout", "POST");
-  token = "";
+  setSession("");
   account = null;
   mode = "login";
   el("login").reset();
@@ -446,3 +539,18 @@ el("reg-confirm").addEventListener("input", event => event.currentTarget.setCust
 el("reg-password").addEventListener("input", () => el("reg-confirm").setCustomValidity(""));
 document.querySelectorAll("[data-i18n]").forEach(node => { node.textContent = t(node.dataset.i18n); });
 render();
+
+async function restoreSession() {
+  let saved;
+  try { saved = sessionStorage.getItem(sessionKey); } catch { return; }
+  if (!saved) return;
+  token = saved;
+  mode = "login";
+  await run(async () => {
+    const result = await api("/me", "GET");
+    enterCabinet({ ...result, session_token: saved });
+  });
+  if (!account) token = "";
+}
+
+void restoreSession();
